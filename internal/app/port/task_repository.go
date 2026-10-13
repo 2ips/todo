@@ -2,7 +2,8 @@ package port
 
 import (
 	"fmt"
-	"todo2/internal/domain"
+
+	"github.com/2ips/todo/internal/domain"
 )
 
 type ErrTaskNotFound struct {
