@@ -3,9 +3,9 @@ package domain
 import "time"
 
 type Task struct {
-	ID TaskID
-	Title  TaskTitle
-	Status TaskStatus
+	ID       TaskID
+	Title    TaskTitle
+	Status   TaskStatus
 	Deadline TaskDeadline
 }
 
@@ -46,7 +46,7 @@ func ReconstructTask(id int64, title string, status string, deadline time.Time) 
 	}
 
 	return &Task{
-		ID:   taskID,
+		ID:       taskID,
 		Title:    taskTitle,
 		Status:   taskStatus,
 		Deadline: taskDeadline,

@@ -4,7 +4,7 @@ import "fmt"
 
 type TaskID int64
 
-type ErrInvalidTaskID struct{
+type ErrInvalidTaskID struct {
 	Value int64
 }
 
