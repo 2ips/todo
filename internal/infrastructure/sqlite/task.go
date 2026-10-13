@@ -13,6 +13,10 @@ type taskModel struct {
 	Deadline time.Time `gorm:"not null"`
 }
 
+func (taskModel) TableName() string {
+	return "tasks"
+}
+
 func toModel(task *domain.Task) *taskModel {
 	return &taskModel{
 		ID:       int64(task.ID),
