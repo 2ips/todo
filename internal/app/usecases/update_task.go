@@ -31,7 +31,7 @@ func (uc *UpdateTask) Execute(id int64, title *string, deadline *time.Time) (*do
 	}
 
 	if !task.Status.IsEditable() {
-		return nil, fmt.Errorf("%w: %w", ErrUpdateTask, &domain.ErrTaskNotEditable{Value: task.Status})
+		return nil, fmt.Errorf("%w: %w", ErrUpdateTask, domain.ErrTaskNotEditable{Value: task.Status})
 	}
 
 	if title != nil {

@@ -35,11 +35,11 @@ func (uc *EditTaskStatus) Execute(id int64, status string) (*domain.Task, error)
 	}
 
 	if !task.Status.IsEditable() {
-		return nil, fmt.Errorf("%w; %w", ErrEditTaskStatus, &domain.ErrTaskNotEditable{Value: newStatus})
+		return nil, fmt.Errorf("%w; %w", ErrEditTaskStatus, domain.ErrTaskNotEditable{Value: newStatus})
 	}
 
 	if task.Status == newStatus {
-		return nil, fmt.Errorf("%w; %w", ErrEditTaskStatus, &domain.ErrTaskStatusAlreadySet{Value: task.Status})
+		return nil, fmt.Errorf("%w; %w", ErrEditTaskStatus, domain.ErrTaskStatusAlreadySet{Value: task.Status})
 	}
 
 	task.Status = newStatus
