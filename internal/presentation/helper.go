@@ -8,7 +8,7 @@ import (
 	"github.com/2ips/todo/internal/domain"
 )
 
-const TimeLayout = "DD.MM.YYYY HH:MM"
+const TimeLayout = "02.01.2006 15:04"
 
 func FormatTask(task *domain.Task) string {
 	return fmt.Sprintf(
