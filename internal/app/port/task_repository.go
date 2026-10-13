@@ -1,6 +1,7 @@
 package port
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/2ips/todo/internal/domain"
@@ -10,14 +11,10 @@ type ErrTaskNotFound struct {
 	Value domain.TaskID
 }
 
-type ErrStorage struct{}
+var ErrStorage = errors.New("storage error")
 
 func (e *ErrTaskNotFound) Error() string {
 	return fmt.Sprintf("cannot find task with id %d", e.Value)
-}
-
-func (e *ErrStorage) Error() string {
-	return "storage error"
 }
 
 type TaskRepository interface {
