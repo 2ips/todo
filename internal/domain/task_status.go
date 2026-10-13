@@ -2,6 +2,7 @@ package domain
 
 import (
 	"fmt"
+	"slices"
 	"strings"
 )
 
@@ -13,6 +14,13 @@ const (
 	TaskCancelled  TaskStatus = "cancelled"
 	TaskDone       TaskStatus = "done"
 )
+
+var TaskStatuses = []string{
+	string(TaskPlanned),
+	string(TaskInProgress),
+	string(TaskCancelled),
+	string(TaskDone),
+}
 
 type ErrUnknownTaskStatus struct {
 	Value string
@@ -27,14 +35,7 @@ type ErrTaskNotEditable struct {
 }
 
 func (e ErrUnknownTaskStatus) Error() string {
-	taskStatuses := []string{
-		string(TaskPlanned),
-		string(TaskInProgress),
-		string(TaskCancelled),
-		string(TaskDone),
-	}
-
-	return fmt.Sprintf("expected task status as [%s], got %s", strings.Join(taskStatuses, ", "), e.Value)
+	return fmt.Sprintf("expected task status as [%s], got %s", strings.Join(TaskStatuses, ", "), e.Value)
 }
 
 func (e ErrTaskStatusAlreadySet) Error() string {
@@ -46,13 +47,12 @@ func (e ErrTaskNotEditable) Error() string {
 }
 
 func NewTaskStatus(status string) (TaskStatus, error) {
-	taskStatus := TaskStatus(strings.ToLower(status))
-	switch taskStatus {
-	case TaskPlanned, TaskInProgress, TaskCancelled, TaskDone:
-		return taskStatus, nil
-	default:
-		return "", &ErrUnknownTaskStatus{Value: status}
+	status = strings.ToLower(status)
+
+	if slices.Contains(TaskStatuses, status) {
+		return TaskStatus(status), nil
 	}
+	return "", ErrUnknownTaskStatus{Value: status}
 }
 
 func (s TaskStatus) IsEditable() bool {
