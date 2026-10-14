@@ -16,7 +16,7 @@ func FormatTask(task *domain.Task) string {
 		task.ID,
 		task.Status,
 		task.Title,
-		time.Time(task.Deadline).Format(TimeLayout),
+		time.Time(task.Deadline).In(time.Local).Format(TimeLayout),
 	)
 }
 
