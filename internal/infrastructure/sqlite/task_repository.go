@@ -3,6 +3,7 @@ package sqlite
 import (
 	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/2ips/todo/internal/app/port"
 	"github.com/2ips/todo/internal/domain"
@@ -30,26 +31,45 @@ func (r *TaskRepository) NextID() (domain.TaskID, error) {
 	return domain.NewTaskID(id)
 }
 
-func (r *TaskRepository) List() ([]*domain.Task, error) {
+func (r *TaskRepository) List(title *string, pagination port.Pagination) ([]*domain.Task, int64, error) {
+	filterByTitle := func(db *gorm.DB) *gorm.DB {
+		if title == nil {
+			return db
+		}
+		return db.Where("instr(title_lower, ?) > 0", strings.ToLower(*title))
+	}
+
+	var total int64
+
+	if err := r.db.
+		Model(&taskModel{}).
+		Scopes(filterByTitle).
+		Count(&total).Error; err != nil {
+		return nil, 0, fmt.Errorf("%w: list error: %v", port.ErrStorage, err)
+	}
+
 	var models []taskModel
 
 	if err := r.db.
+		Scopes(filterByTitle).
 		Order("deadline").
 		Order("id").
+		Limit(int(pagination.Limit)).
+		Offset(int(pagination.Offset())).
 		Find(&models).Error; err != nil {
-		return nil, fmt.Errorf("%w: list error: %v", port.ErrStorage, err)
+		return nil, 0, fmt.Errorf("%w: list error: %v", port.ErrStorage, err)
 	}
 
 	tasks := make([]*domain.Task, len(models))
 	for i, model := range models {
 		task, err := fromModel(&model)
 		if err != nil {
-			return nil, fmt.Errorf("%w: list error: %v", port.ErrStorage, err)
+			return nil, 0, fmt.Errorf("%w: list error: %v", port.ErrStorage, err)
 		}
 		tasks[i] = task
 	}
 
-	return tasks, nil
+	return tasks, total, nil
 }
 
 func (r *TaskRepository) Get(id domain.TaskID) (*domain.Task, error) {
@@ -74,7 +94,7 @@ func (r *TaskRepository) Save(task *domain.Task) error {
 
 	err := r.db.Clauses(clause.OnConflict{
 		Columns:   []clause.Column{{Name: "id"}},
-		DoUpdates: clause.AssignmentColumns([]string{"title", "status", "deadline"}),
+		DoUpdates: clause.AssignmentColumns([]string{"title", "title_lower", "status", "deadline"}),
 	}).Create(&model).Error
 	if err != nil {
 		return fmt.Errorf("%w: save error for task id %d: %v", port.ErrStorage, task.ID, err)
